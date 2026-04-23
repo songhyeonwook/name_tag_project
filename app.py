@@ -248,8 +248,15 @@ def read_template_bytes(uploaded_template) -> bytes:
 def main() -> None:
     import streamlit as st
 
-    st.set_page_config(page_title="Nametag Generator")
-    st.title("Nametag Generator")
+    st.set_page_config(page_title="Nametag Generator", page_icon="🏢")
+    
+    # 상단 로고 및 타이틀 커스텀
+    st.markdown("""
+    <div style="text-align: center; padding: 20px 0;">
+        <h1 style="color: #da291c; font-family: 'Arial Black', sans-serif; margin-bottom: 0;">LOTTE</h1>
+        <h3 style="color: #555; margin-top: 5px;">Nametag Generator</h3>
+    </div>
+    """, unsafe_allow_html=True)
 
     st.markdown(
         """
@@ -397,8 +404,8 @@ def main() -> None:
                     top: {dy}px;
                     width: {nametag_disp_w}px;
                     height: {nametag_disp_h}px;
-                    background-color: #e3f2fd;
-                    border: 2px dashed #1e88e5;
+                    background-color: #fff5f5;
+                    border: 2px dashed #da291c;
                     border-radius: 4px;
                     display: flex;
                     align-items: center;
@@ -407,7 +414,7 @@ def main() -> None:
                     text-align: center;
                     font-size: {base_font_size}px;
                     font-weight: bold;
-                    color: #1565c0;
+                    color: #da291c;
                     padding: 10px;
                     box-sizing: border-box;
                     overflow: hidden;
@@ -421,7 +428,7 @@ def main() -> None:
         import streamlit.components.v1 as components
         components.html(html_content, height=int(display_h) + 30)
 
-        if st.button("명찰 만들기 (다운로드 파일 생성)"):
+        if st.button("명찰 만들기 (다운로드 파일 생성)", type="primary"):
             if not attendees:
                 st.warning("회사명, 부서, 이름이 모두 채워진 행을 찾지 못했습니다.")
                 return
