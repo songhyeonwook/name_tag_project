@@ -306,14 +306,20 @@ def main() -> None:
         )
         st.dataframe(preview_df.head(10), use_container_width=True)
 
-        col1, col2 = st.columns(2)
+        col1, col2, col3 = st.columns(3)
         with col1:
             orientation = st.radio("용지 방향", ["가로 (Landscape)", "세로 (Portrait)"], index=0)
         with col2:
             grid_size = st.selectbox("명찰 배열 (가로칸 x 세로칸)", ["1x1", "1x2", "2x1", "2x2", "2x3", "3x2", "2x4", "4x2", "3x3"])
+        with col3:
+            num_copies = st.number_input("인당 출력 개수", min_value=1, max_value=10, value=1)
         
         grid_cols, grid_rows = map(int, grid_size.split("x"))
         is_landscape = orientation.startswith("가로")
+
+        attendees = build_attendees(df, company_col, dept_col, name_col)
+        # 인당 출력 개수만큼 복제
+        attendees = [a for a in attendees for _ in range(num_copies)]
 
         # 미리보기 로직
         st.subheader("예상 도안 미리보기 (A4 용지 기준)")
@@ -369,10 +375,18 @@ def main() -> None:
         nametag_disp_w = cell_disp_w * (scaled_w / cell_w)
         nametag_disp_h = cell_disp_h * (scaled_h / cell_h)
 
+        preview_index = 0
         for r in range(grid_rows):
             for c in range(grid_cols):
                 dx = (c * cell_disp_w) + (cell_disp_w - nametag_disp_w) / 2
                 dy = (r * cell_disp_h) + (cell_disp_h - nametag_disp_h) / 2
+                
+                # 명찰에 들어갈 실제 텍스트 가져오기
+                if preview_index < len(attendees):
+                    comp, dept, name = attendees[preview_index]
+                    display_text = f"{comp}<br><span style='font-size:18px; color:#333;'>{dept} {name}</span>"
+                else:
+                    display_text = ""
                 
                 html_content += textwrap.dedent(f'''
                 <div style="
@@ -387,20 +401,25 @@ def main() -> None:
                     display: flex;
                     align-items: center;
                     justify-content: center;
+                    flex-direction: column;
+                    text-align: center;
                     font-size: 14px;
                     font-weight: bold;
                     color: #1565c0;
+                    padding: 10px;
+                    box-sizing: border-box;
+                    overflow: hidden;
                 ">
-                    명찰
+                    {display_text}
                 </div>
                 ''')
+                preview_index += 1
         html_content += "</div>"
         
         import streamlit.components.v1 as components
         components.html(html_content, height=int(display_h) + 30)
 
         if st.button("명찰 만들기 (다운로드 파일 생성)"):
-            attendees = build_attendees(df, company_col, dept_col, name_col)
             if not attendees:
                 st.warning("회사명, 부서, 이름이 모두 채워진 행을 찾지 못했습니다.")
                 return
