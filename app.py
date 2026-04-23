@@ -380,11 +380,13 @@ def main() -> None:
             for c in range(grid_cols):
                 dx = (c * cell_disp_w) + (cell_disp_w - nametag_disp_w) / 2
                 dy = (r * cell_disp_h) + (cell_disp_h - nametag_disp_h) / 2
+                base_font_size = max(8, int(nametag_disp_h * 0.12))
+                span_font_size = max(10, int(nametag_disp_h * 0.18))
                 
                 # 명찰에 들어갈 실제 텍스트 가져오기
                 if preview_index < len(attendees):
                     comp, dept, name = attendees[preview_index]
-                    display_text = f"{comp}<br><span style='font-size:18px; color:#333;'>{dept} {name}</span>"
+                    display_text = f"{comp}<br><span style='font-size:{span_font_size}px; color:#333;'>{dept} {name}</span>"
                 else:
                     display_text = ""
                 
@@ -403,7 +405,7 @@ def main() -> None:
                     justify-content: center;
                     flex-direction: column;
                     text-align: center;
-                    font-size: 14px;
+                    font-size: {base_font_size}px;
                     font-weight: bold;
                     color: #1565c0;
                     padding: 10px;
