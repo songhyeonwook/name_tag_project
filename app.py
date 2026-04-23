@@ -348,7 +348,9 @@ def main() -> None:
         display_h = 350
         display_w = display_h * (A4_W_EMU / A4_H_EMU)
 
-        html_content = f'''
+        import textwrap
+        
+        html_content = textwrap.dedent(f'''
         <div style="
             width: {display_w}px;
             height: {display_h}px;
@@ -359,7 +361,7 @@ def main() -> None:
             position: relative;
             box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
         ">
-        '''
+        ''')
 
         cell_disp_w = display_w / grid_cols
         cell_disp_h = display_h / grid_rows
@@ -372,7 +374,7 @@ def main() -> None:
                 dx = (c * cell_disp_w) + (cell_disp_w - nametag_disp_w) / 2
                 dy = (r * cell_disp_h) + (cell_disp_h - nametag_disp_h) / 2
                 
-                html_content += f'''
+                html_content += textwrap.dedent(f'''
                 <div style="
                     position: absolute;
                     left: {dx}px;
@@ -391,9 +393,11 @@ def main() -> None:
                 ">
                     명찰
                 </div>
-                '''
+                ''')
         html_content += "</div>"
-        st.markdown(html_content, unsafe_allow_html=True)
+        
+        import streamlit.components.v1 as components
+        components.html(html_content, height=int(display_h) + 30)
 
         if st.button("명찰 만들기 (다운로드 파일 생성)"):
             attendees = build_attendees(df, company_col, dept_col, name_col)
