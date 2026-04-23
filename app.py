@@ -315,14 +315,93 @@ def main() -> None:
         grid_cols, grid_rows = map(int, grid_size.split("x"))
         is_landscape = orientation.startswith("가로")
 
-        if st.button("명찰 만들기"):
+        # 미리보기 로직
+        st.subheader("예상 도안 미리보기 (A4 용지 기준)")
+        template_bytes = read_template_bytes(uploaded_template)
+        try:
+            prs_preview = Presentation(io.BytesIO(template_bytes))
+            template_w = prs_preview.slide_width
+            template_h = prs_preview.slide_height
+        except Exception:
+            template_w = Inches(3.5)
+            template_h = Inches(2.1)
+
+        EMU_PER_CM = 360000
+        A4_W_EMU = int(29.7 * EMU_PER_CM) if is_landscape else int(21.0 * EMU_PER_CM)
+        A4_H_EMU = int(21.0 * EMU_PER_CM) if is_landscape else int(29.7 * EMU_PER_CM)
+
+        cell_w = A4_W_EMU / grid_cols
+        cell_h = A4_H_EMU / grid_rows
+
+        scale_w = cell_w / template_w
+        scale_h = cell_h / template_h
+        scale_factor = min(scale_w, scale_h)
+
+        scaled_w = template_w * scale_factor
+        scaled_h = template_h * scale_factor
+
+        scaled_w_cm = scaled_w / EMU_PER_CM
+        scaled_h_cm = scaled_h / EMU_PER_CM
+
+        st.info(f"선택한 배열에 따른 개별 명찰 출력 크기: **가로 {scaled_w_cm:.1f}cm x 세로 {scaled_h_cm:.1f}cm**")
+
+        display_h = 350
+        display_w = display_h * (A4_W_EMU / A4_H_EMU)
+
+        html_content = f'''
+        <div style="
+            width: {display_w}px;
+            height: {display_h}px;
+            border: 2px solid #ccc;
+            background-color: #fafafa;
+            margin: 0 auto;
+            margin-bottom: 20px;
+            position: relative;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+        ">
+        '''
+
+        cell_disp_w = display_w / grid_cols
+        cell_disp_h = display_h / grid_rows
+
+        nametag_disp_w = cell_disp_w * (scaled_w / cell_w)
+        nametag_disp_h = cell_disp_h * (scaled_h / cell_h)
+
+        for r in range(grid_rows):
+            for c in range(grid_cols):
+                dx = (c * cell_disp_w) + (cell_disp_w - nametag_disp_w) / 2
+                dy = (r * cell_disp_h) + (cell_disp_h - nametag_disp_h) / 2
+                
+                html_content += f'''
+                <div style="
+                    position: absolute;
+                    left: {dx}px;
+                    top: {dy}px;
+                    width: {nametag_disp_w}px;
+                    height: {nametag_disp_h}px;
+                    background-color: #e3f2fd;
+                    border: 2px dashed #1e88e5;
+                    border-radius: 4px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 14px;
+                    font-weight: bold;
+                    color: #1565c0;
+                ">
+                    명찰
+                </div>
+                '''
+        html_content += "</div>"
+        st.markdown(html_content, unsafe_allow_html=True)
+
+        if st.button("명찰 만들기 (다운로드 파일 생성)"):
             attendees = build_attendees(df, company_col, dept_col, name_col)
             if not attendees:
                 st.warning("회사명, 부서, 이름이 모두 채워진 행을 찾지 못했습니다.")
                 return
 
             try:
-                template_bytes = read_template_bytes(uploaded_template)
                 result = generate_ppt_from_template(
                     attendees, 
                     template_bytes, 
