@@ -1,48 +1,44 @@
-# Nametag Generator Web App
+# Nametag Generator (명찰 생성기)
 
-This repository contains a simple Streamlit web application that helps
-you generate nametag slides (either PPTX or PDF) from an Excel or CSV
-file containing your attendee list.  The app reads the file, filters
-rows for people who are marked as either **attendee** or **applicant**,
-and produces a page for each person with their department and name
-combined into a single line (for example, `경영지원부 홍길동`).  All
-pages are compiled into one downloadable file.
+엑셀(Excel) 또는 CSV 명단을 업로드하여 자동으로 여러 명의 명찰이 포함된 파워포인트(PPTX) 파일을 생성해주는 웹 어플리케이션입니다. 
+A4 용지 규격에 맞춰 원하는 명찰 배열(1x1, 2x2, 3x3 등)을 선택하면, 인원수에 맞게 다중 명찰이 포함된 PPT 슬라이드가 자동 생성됩니다.
 
-## How it works
+## 🚀 주요 기능
+* **엑셀 데이터 자동 매핑:** 엑셀의 '회사명', '부서', '이름' 컬럼을 인식하여 명찰에 자동으로 입력해 줍니다.
+* **A4 용지 다중 인쇄 지원 (Grid Layout):** A4 사이즈 안에서 명찰을 어떻게 배치할지 선택할 수 있으며, 실제 인쇄되는 명찰의 크기(cm)와 예상 레이아웃을 화면에서 미리 확인할 수 있습니다.
+* **비율 자동 인식 및 크기 조정:** 업로드된 템플릿의 가로/세로 비율을 자동으로 분석해, A4 셀 크기에 맞춰 폰트와 도형의 사이즈를 비율에 맞게 일괄 조정합니다.
 
-1. Upload your Excel or CSV file using the file‑uploader.
-2. Select the columns that represent **Department**, **Name** and
-   **Status**.  You can customise the accepted status values if your
-   file uses Korean labels like “참석자” or “신청자”.  Only rows
-   matching the selected statuses will be included.
-3. Choose whether you want a PowerPoint deck (`.pptx`) or a PDF file.
-4. Click **Generate Nametags** to build the combined file.  You’ll
-   receive a download link when the generation is complete.
+## 📝 템플릿 제작 및 플레이스홀더(Placeholder) 사용법
 
-The application uses `pandas` to process spreadsheets, `python‑pptx`
-to build slides and `reportlab` to generate PDF pages.  Each page
-contains a single line centred both horizontally and vertically on the
-page.  You can adjust the font size and family inside
-`app.py` if you wish.
+이 앱은 사용자가 자유롭게 디자인한 PPTX 템플릿을 지원합니다. 
+원하시는 도형이나 텍스트 상자를 만들고, 그 안에 **아래의 괄호(플레이스홀더)들을 적어두면 데이터가 자동으로 치환됩니다.**
 
-## Setup & running locally
+**사용 가능한 플레이스홀더:**
+* `{{company}}` : 엑셀의 '회사명'
+* `{{department}}` : 엑셀의 '부서'
+* `{{name}}` : 엑셀의 '이름'
+* `{{dept_name}}` : 부서와 이름을 합친 텍스트 (예: 영업부 홍길동)
 
-To run the app on your own machine you’ll need Python 3.8 or later.
-Install the dependencies listed in `requirements.txt` and then launch
-the Streamlit app:
+> **💡 꿀팁: 자유롭게 꾸며보세요!**
+> 샘플 템플릿처럼 모든 요소를 다 적을 필요는 없습니다. 
+> * **이름만 크게 넣고 싶다면:** 텍스트 상자에 `{{name}}` 하나만 적어두셔도 됩니다.
+> * **부서와 이름을 따로 띄우고 싶다면:** 텍스트 상자를 각각 만들어서 하나는 `{{department}}`, 다른 하나는 `{{name}}`으로 지정해 보세요.
+> * 템플릿에서 지정하신 폰트, 글자 크기, 글자 색상, 정렬 방식, 도형 디자인 등은 **그대로 유지된 채** 내용만 바뀝니다.
+
+## 💻 로컬에서 실행하기
+
+파이썬 환경이 구축되어 있다면 아래 명령어로 직접 앱을 실행할 수 있습니다.
 
 ```bash
+# 가상환경 생성 및 활성화
 python -m venv venv
-source venv/bin/activate
+source venv/bin/activate  # Windows: venv\Scripts\activate
+
+# 의존성 설치
 pip install -r requirements.txt
+
+# 앱 실행
 streamlit run app.py
 ```
 
-Your browser will open at `http://localhost:8501`, where you can use
-the application.
-
-## Files
-
-* `app.py` – the Streamlit application.
-* `requirements.txt` – Python dependencies.
-* `README.md` – this documentation.
+브라우저가 열리며 `http://localhost:8501`에서 명찰 생성기를 사용할 수 있습니다.
