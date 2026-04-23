@@ -317,7 +317,7 @@ def main() -> None:
         with col1:
             orientation = st.radio("용지 방향", ["가로 (Landscape)", "세로 (Portrait)"], index=0)
         with col2:
-            grid_size = st.selectbox("명찰 배열 (가로칸 x 세로칸)", ["1x1", "1x2", "2x1", "1x4", "4x1", "2x2", "2x3", "3x2", "2x4", "4x2", "3x3"])
+            grid_size = st.selectbox("명찰 배열 (가로칸 x 세로칸)", ["1x1", "1x2", "2x1", "1x3", "3x1", "1x4", "4x1", "2x2", "2x3", "3x2", "2x4", "4x2", "3x3"])
         with col3:
             num_copies = st.number_input("인당 출력 개수", min_value=1, max_value=10, value=1)
         
